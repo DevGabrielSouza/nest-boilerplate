@@ -1,0 +1,46 @@
+# Ignorar pastas de build e cache
+node_modules/
+.next/
+out/
+dist/
+build/
+
+# Ignorar arquivos de configuração e ambientes
+*.env
+*.env.local
+*.env.development
+*.env.production
+
+# Ignorar arquivos gerados
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Ignorar logs
+*.log
+
+# Ignorar arquivos específicos do Next.js
+**/.next/**
+**/_next/**
+
+# Ignorar configuração de ESLint e Prettier
+.eslintrc.*
+.prettierrc.*
+.prettierignore
+
+# Ignorar arquivos de imagens e fontes
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.svg
+*.ico
+*.woff
+*.woff2
+*.ttf
+*.eot
+
+# Ignorar arquivos de markdown ou documentação, caso não precise formatá-los
+CHANGELOG.md
+README.md
