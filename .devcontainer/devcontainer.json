@@ -1,0 +1,46 @@
+{
+  "name": "Nest Boilerplate API",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "nest_boilerplate_api",
+  "workspaceFolder": "/usr/src/nest",
+  "overrideCommand": false,
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "Prisma.prisma",
+        "ms-azuretools.vscode-docker",
+        "eamodio.gitlens",
+        "github.vscode-pull-request-github",
+        "mhutchie.git-graph",
+        "ms-vscode.vscode-typescript-next",
+        "christian-kohler.path-intellisense",
+        "steoates.autoimport",
+        "usernamehw.errorlens",
+        "hbenl.vscode-test-explorer",
+        "Orta.vscode-jest",
+        "CoenraadS.bracket-pair-colorizer-2",
+        "yzhang.markdown-all-in-one",
+        "redhat.vscode-yaml"
+        ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "eslint.validate": ["typescript"]
+      }
+    }
+  },
+  "postCreateCommand": "yarn install && npx prisma generate",
+  "remoteEnv": {
+    "NODE_ENV": "development"
+  },
+  "forwardPorts": [3001],
+  "mounts": [
+    "source=${localWorkspaceFolder}/apps/api/src,target=/usr/src/nest/apps/api/src,type=bind,consistency=cached",
+    "source=${localWorkspaceFolder}/apps/redis/src,target=/usr/src/nest/apps/redis/src,type=bind,consistency=cached",
+    "source=${localWorkspaceFolder}/tsconfig.json,target=/usr/src/nest/tsconfig.json,type=bind",
+    "source=${localWorkspaceFolder}/package.json,target=/usr/src/nest/package.json,type=bind",
+    "source=${localWorkspaceFolder}/yarn.lock,target=/usr/src/nest/yarn.lock,type=bind"
+  ]
+}
