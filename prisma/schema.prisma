@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  TENANT
+  USER
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Tenant {
+  id String @id @default(cuid())
+  name      String
+  slug      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  User User[]
+
+  @@map("tenants")
+  TenantConfiguration TenantConfiguration[]
+}
+
+model User{
+  id String @id @default(cuid())
+  name         String
+  lastName     String
+  role      UserRole @default(USER)
+  email     String   @unique
+  password  String
+  taxId     String?
+  tenantId String?  
+
+  image     String?
+  emailVerifiedAt DateTime?
+  isTwoFactorEnabled Boolean @default(false)
+  twoFactorConfirmation TwoFactorConfirmation?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id])
+  
+  sessions Session[]
+
+  @@index([tenantId], name: "tenantId")
+  @@index([email], name: "email_index") // Added index for email
+
+  @@unique([email, tenantId], name: "email_tenant_unique")
+
+  @@map("users")
+}
+
+model VerificationToken {
+  id String @id @default(cuid())
+  email String
+  token String @unique
+  expires DateTime
+  isUsed  Boolean  @default(false) // Added field to prevent reuse
+
+  @@unique([email, token])
+
+  @@map("verification_tokens")
+}
+
+model PasswordResetToken {
+  id String @id @default(cuid())
+  email String
+  token String @unique
+  expires DateTime
+  isUsed  Boolean  @default(false) // Added field to prevent reuse
+
+  @@unique([email, token])
+
+  @@map("password_reset_tokens")
+}
+
+model TwoFactorToken {
+  id String @id @default(cuid())
+  email String
+  token String @unique
+  expires DateTime
+  isUsed  Boolean  @default(false) // Added field to prevent reuse
+
+  @@unique([email, token])
+
+  @@map("two_factor_tokens")
+}
+
+model TwoFactorConfirmation {
+  id String @id @default(cuid())
+
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId])
+
+  @@map("two_factor_confirmations")
+}
+
+
+model Log {
+  id String @id @default(cuid())
+  tenantId  Int
+  userId    Int
+  action    String
+  entity    String
+  entityId  String
+  createdAt DateTime  @default(now())
+
+  @@map("logs")
+}
+
+model TenantConfiguration {
+  id String @id @default(cuid())
+  tenantId  String
+  key       String
+  value     String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([tenantId, key], name: "tenant_key_unique")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@map("tenant_configurations")
+}
