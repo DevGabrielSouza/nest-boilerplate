@@ -20,7 +20,9 @@ import { User } from 'apps/api/src/common/decorators/user.decorator';
 import { AppConfigService } from '@env-config/config.service';
 import { UserPresenter } from '../presenter/user.presenter';
 import { CookieService } from '../../application/service/cookie.service';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -32,6 +34,10 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(200)
+  @ApiOperation({
+    summary: 'Login',
+    description: 'Login with email and password',
+  })
   async login(@Body() authLoginDto: AuthLoginDto, @Req() req: Request) {
     const { accessToken } = await this.authService.login(authLoginDto);
 
@@ -47,16 +53,31 @@ export class AuthController {
   }
 
   @Post('register')
+  @HttpCode(201)
+  @ApiOperation({
+    summary: 'Register',
+    description: 'Register a new user',
+  })
   register(@Body() authRegisterDto: AuthRegisterDto) {
     return this.authService.register(authRegisterDto);
   }
 
   @Post('forget-password')
+  @HttpCode(200)
+  @ApiOperation({
+    summary: 'Forget Password',
+    description: 'Send a reset password email',
+  })
   forget(@Body() authForgetDto: AuthForgetDto) {
     return this.authService.forget(authForgetDto);
   }
 
   @Post('reset-password')
+  @HttpCode(200)
+  @ApiOperation({
+    summary: 'Reset Password',
+    description: 'Reset password with token',
+  })
   reset(@Body() authResetDto: AuthResetDto) {
     return this.authService.reset(authResetDto);
   }
@@ -64,6 +85,10 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Post('me')
   @HttpCode(200)
+  @ApiOperation({
+    summary: 'Get Current User',
+    description: 'Get the current authenticated user',
+  })
   async me(@User() user) {
     const currentUser = await this.authService.getCurrentUser(user);
     return this.userPresenter.present(currentUser);
@@ -72,6 +97,10 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Post('validate')
   @HttpCode(200)
+  @ApiOperation({
+    summary: 'Validate Token',
+    description: 'Validate the access token',
+  })
   async validate(@Req() req: Request) {
     const token = req.cookies?.accessToken;
 
@@ -87,7 +116,13 @@ export class AuthController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Post('logout')
+  @HttpCode(200)
+  @ApiOperation({
+    summary: 'Logout',
+    description: 'Logout the user and clear the access token',
+  })
   async logout(@Res() res: Response) {
     this.cookieService.clearAccessTokenCookie(res, this.configService);
     return res.status(200).json({ message: 'Logout successful' });
