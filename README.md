@@ -12,7 +12,7 @@ Este projeto é a API principal para o sistema **Nest Boilerplate**, desenvolvid
 - [Comandos Disponíveis](#comandos-disponíveis)
 - [Variáveis de Ambiente](#variáveis-de-ambiente)
 - [Docker](#docker)
-- [Conventional Commits e Uso de Cards Jira](#conventional-commits-e-uso-de-cards-jira)
+- [Conventional Commits](#conventional-commits)
 - [Contribuição](#contribuição)
 
 ---
@@ -161,33 +161,21 @@ docker-compose down
 
 ---
 
-## **Conventional Commits e Uso de Cards Jira**
+## **Conventional Commits**
 
-### **Branches Baseadas no Jira**
-As branches devem ser criadas com base no card do Jira relacionado. O padrão de nome para a branch é:
-
-```bash
-git checkout -b feature/NCS-<numero-do-card>
-```
-Exemplo para o card `NCS-45`:
-```bash
-git checkout -b feature/NCS-45
-```
-
-### **Conventional Commits**
 Para manter o histórico de commits organizado, utilize o padrão de [Conventional Commits](https://www.conventionalcommits.org/). Alguns exemplos:
 
 - **Adicionando uma funcionalidade:**
   ```bash
-  feat(NCS-45): adiciona endpoint para gerenciamento de produtos
+  feat(module): adiciona endpoint para gerenciamento de produtos
   ```
 - **Corrigindo um bug:**
   ```bash
-  fix(NCS-32): corrige erro na autenticação de usuários
+  fix(module): corrige erro na autenticação de usuários
   ```
 - **Alterando configurações:**
   ```bash
-  chore(NCS-10): atualiza dependências no package.json
+  chore(module): atualiza dependências no package.json
   ```
 
 ### **Checklist para Commits**
@@ -201,11 +189,11 @@ Para manter o histórico de commits organizado, utilize o padrão de [Convention
    ```
 3. Faça o commit com uma mensagem clara e seguindo o padrão:
    ```bash
-   git commit -m "<tipo>(NCS-<numero>): <mensagem>"
+   git commit -m "<tipo>(<module>): <mensagem>"
    ```
 4. Suba sua branch:
    ```bash
-   git push origin feature/NCS-<numero-do-card>
+   git push origin feature/<descricao>
    ```
 
 ---
