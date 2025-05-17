@@ -9,9 +9,13 @@ import { ConflictInterceptor } from './common/errors/interceptors/conflict.inter
 import { DatabaseInterceptor } from './common/errors/interceptors/database.interceptor';
 import { ValidationPipe } from '@nestjs/common';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { setupSwagger } from './swagger/swagger.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  setupSwagger(app);
+
   app.use(cookieParser());
 
   const appConfigService = app.get(AppConfigService);
