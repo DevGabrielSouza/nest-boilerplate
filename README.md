@@ -6,14 +6,27 @@ Este projeto é a API principal para o sistema **Nest Boilerplate**, desenvolvid
 
 ## **Índice**
 
-- [Tecnologias Utilizadas](#tecnologias-utilizadas)
-- [Estrutura do Projeto](#estrutura-do-projeto)
-- [Configuração e Instalação](#configuração-e-instalação)
-- [Comandos Disponíveis](#comandos-disponíveis)
-- [Variáveis de Ambiente](#variáveis-de-ambiente)
-- [Docker](#docker)
-- [Conventional Commits](#conventional-commits)
-- [Contribuição](#contribuição)
+- [Nest Boilerplate Main API](#nest-boilerplate-main-api)
+  - [**Índice**](#índice)
+  - [**Tecnologias Utilizadas**](#tecnologias-utilizadas)
+  - [**Estrutura do Projeto**](#estrutura-do-projeto)
+  - [**Configuração e Instalação**](#configuração-e-instalação)
+    - [**Pré-requisitos**](#pré-requisitos)
+    - [**Passos para Instalação**](#passos-para-instalação)
+  - [**Comandos Disponíveis**](#comandos-disponíveis)
+    - [**Iniciar o Servidor**](#iniciar-o-servidor)
+    - [**Executar Testes**](#executar-testes)
+    - [**Lint e Formatação**](#lint-e-formatação)
+  - [**Variáveis de Ambiente**](#variáveis-de-ambiente)
+  - [**Docker**](#docker)
+    - [**Subir o Ambiente com Docker Compose**](#subir-o-ambiente-com-docker-compose)
+    - [**Serviços no Docker Compose**](#serviços-no-docker-compose)
+    - [**Parar o Ambiente**](#parar-o-ambiente)
+  - [**Documentação da API (Swagger)**](#documentação-da-api-swagger)
+  - [**Conventional Commits**](#conventional-commits)
+    - [**Checklist para Commits**](#checklist-para-commits)
+  - [**Contribuição**](#contribuição)
+  - [**Contato**](#contato)
 
 ---
 
@@ -128,7 +141,7 @@ As principais variáveis de ambiente estão listadas no arquivo `.env.example`. 
 | `DB_PORT`           | Porta do banco de dados MySQL     | `3306`                |
 | `DB_USER`           | Usuário do banco de dados         | `root`                |
 | `DB_PASSWORD`       | Senha do banco de dados           | `password`            |
-| `DB_NAME`           | Nome do banco de dados            | `nest_boilerplate`           |
+| `DB_NAME`           | Nome do banco de dados            | `nest_boilerplate`    |
 | `REDIS_HOST`        | Host do Redis                     | `localhost`           |
 | `REDIS_PORT`        | Porta do Redis                    | `6379`                |
 
@@ -147,17 +160,35 @@ docker-compose up --build -d
 
 ### **Serviços no Docker Compose**
 
-| Serviço             | Descrição                          |
-|---------------------|------------------------------------|
-| `nest_boilerplate_api`     | API principal                     |
-| `nest_boilerplate_mysql`   | Banco de dados MySQL              |
-| `nest_boilerplate_redis`   | Servidor Redis                    |
+| Serviço                   | Descrição                          |
+|---------------------------|------------------------------------|
+| `nest_boilerplate_api`    | API principal                      |
+| `nest_boilerplate_mysql`  | Banco de dados MySQL               |
+| `nest_boilerplate_redis`  | Servidor Redis                     |
 
 ### **Parar o Ambiente**
 
 ```bash
 docker-compose down
 ```
+
+---
+
+## **Documentação da API (Swagger)**
+
+Este projeto possui documentação automática da API gerada com **Swagger**.
+
+Após iniciar o servidor, acesse:
+
+```
+http://localhost:3001/docs
+```
+
+Você encontrará:
+- Endpoints disponíveis
+- Tipagem dos DTOs
+- Exemplos de requisição e resposta
+- Suporte a autenticação com Bearer Token (JWT)
 
 ---
 
