@@ -7,7 +7,6 @@ export const envSchema = z.object({
   JWT_EXPIRES_IN: z.string(),
   FRONTEND_URL: z.string().url(),
   DOMAIN_NAME: z.string(),
-  FRONTEND_LOGIN_CALLBACK_ENDPOINT: z.string(),
 
   DB_HOST: z.string(),
   DB_PORT: z.string().transform((port) => parseInt(port, 10)),

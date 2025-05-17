@@ -38,10 +38,6 @@ export class AppConfigService {
     return this.envConfig.DOMAIN_NAME;
   }
 
-  get frontendLoginCallbackEndpoint(): string {
-    return this.envConfig.FRONTEND_LOGIN_CALLBACK_ENDPOINT;
-  }
-
   get dbHost(): string {
     return this.envConfig.DB_HOST;
   }
