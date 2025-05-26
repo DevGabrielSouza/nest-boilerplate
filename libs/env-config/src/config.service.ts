@@ -69,4 +69,7 @@ export class AppConfigService {
   get redisPort(): number {
     return this.envConfig.REDIS_PORT;
   }
+  get corsOrigin(): string {
+    return this.envConfig.FRONTEND_URL;
+  }
 }

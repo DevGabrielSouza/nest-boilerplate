@@ -14,6 +14,7 @@ import { RequestContextModule } from './request-provider/request-context.module'
 import { RequestContextService } from './request-provider/application/service/request-context.service';
 import { AuthModule } from './auth/auth.module';
 import { RedisModule } from './redis/redis.module';
+import { AppBootstrapService } from './core/application/service/app-bootstrap.service';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { RedisModule } from './redis/redis.module';
     PrismaTenantRepository,
     UsersRepository,
     RequestContextService,
+    AppBootstrapService,
   ],
 })
 export class AppModule {}
