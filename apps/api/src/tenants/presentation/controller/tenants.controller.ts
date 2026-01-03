@@ -6,12 +6,14 @@ import {
   Param,
   Patch,
   Delete,
+  HttpCode,
 } from '@nestjs/common';
 
 import { TenantService } from 'apps/api/src/tenants/application/service/tenants.service';
 import { CreateTenantWithUserDto } from 'apps/api/src/tenants/domain/dto/create-tenant-with-user.dto';
 import { CreateTenantDto } from 'apps/api/src/tenants/domain/dto/create-tenant.dto';
 import { UpdateTenantDto } from 'apps/api/src/tenants/domain/dto/update-tenant.dto';
+import { TenantWithUserPresenter } from '../presenter/tenant-with-user.presenter';
 
 @Controller('tenants')
 export class TenantController {
@@ -23,8 +25,11 @@ export class TenantController {
   }
 
   @Post('create-with-user')
-  createTenantWithUser(@Body() createTenantDto: CreateTenantWithUserDto) {
-    return this.tenantService.createTenantWithUser(createTenantDto);
+  @HttpCode(201)
+  async createTenantWithUser(@Body() createTenantDto: CreateTenantWithUserDto) {
+    const result =
+      await this.tenantService.createTenantWithUser(createTenantDto);
+    return TenantWithUserPresenter.present(result);
   }
 
   @Get()
