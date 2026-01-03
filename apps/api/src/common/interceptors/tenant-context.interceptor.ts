@@ -9,7 +9,10 @@ import { tenantContext } from '../../prisma/middlewares/tenant-filter.middleware
 
 @Injectable()
 export class TenantContextInterceptor implements NestInterceptor {
-  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
+  intercept(
+    _context: ExecutionContext,
+    next: CallHandler
+  ): Observable<unknown> {
     return new Observable((observer) => {
       tenantContext.run({ tenantId: null, bypassTenantFilter: false }, () => {
         next.handle().subscribe({

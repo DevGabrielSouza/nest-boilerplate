@@ -21,17 +21,21 @@ export class PrismaTenantRepository {
       data: {
         name: data.name,
         slug: tenantSlug,
-        User: {
+        userTenants: {
           create: {
-            name: data.user.name,
-            lastName: data.user.lastName,
-            email: data.user.email,
-            password: data.user.password,
             role: UserRole.TENANT,
-            taxId: data.user.taxId,
-            image: data.user.image,
-            emailVerifiedAt: data.user.emailVerifiedAt,
-            isTwoFactorEnabled: false,
+            user: {
+              create: {
+                name: data.user.name,
+                lastName: data.user.lastName,
+                email: data.user.email,
+                password: data.user.password,
+                taxId: data.user.taxId,
+                image: data.user.image,
+                emailVerifiedAt: data.user.emailVerifiedAt,
+                isTwoFactorEnabled: false,
+              },
+            },
           },
         },
       },

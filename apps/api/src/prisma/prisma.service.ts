@@ -8,7 +8,16 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
   async onModuleInit() {
     await this.$connect();
 
-    this.$use(tenantFilterMiddleware);
+    this.$extends({
+      query: {
+        $allModels: {
+          async $allOperations({ operation, model, args, query }) {
+            const context = { model, action: operation, args };
+            return tenantFilterMiddleware(context, () => query(args));
+          },
+        },
+      },
+    });
 
     logger.info('🔒 Prisma tenant filtering middleware ativado');
   }

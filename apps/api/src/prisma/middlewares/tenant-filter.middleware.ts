@@ -1,4 +1,3 @@
-import { Prisma } from '@prisma/client';
 import { AsyncLocalStorage } from 'async_hooks';
 
 export const tenantContext = new AsyncLocalStorage<{
@@ -28,9 +27,34 @@ const WRITE_OPERATIONS = [
   'deleteMany',
 ] as const;
 
-export const tenantFilterMiddleware: Prisma.Middleware = async (
-  params,
-  next
+type PrismaAction =
+  | 'findUnique'
+  | 'findFirst'
+  | 'findMany'
+  | 'count'
+  | 'aggregate'
+  | 'groupBy'
+  | 'update'
+  | 'updateMany'
+  | 'delete'
+  | 'deleteMany'
+  | 'create'
+  | 'createMany'
+  | 'findUniqueOrThrow'
+  | 'findFirstOrThrow'
+  | 'upsert';
+
+interface MiddlewareParams {
+  model?: string;
+  action: PrismaAction;
+  args: Record<string, unknown>;
+}
+
+type NextFunction = (params: MiddlewareParams) => Promise<unknown>;
+
+export const tenantFilterMiddleware = async (
+  params: MiddlewareParams,
+  next: NextFunction
 ) => {
   const context = tenantContext.getStore();
 
@@ -56,8 +80,9 @@ export const tenantFilterMiddleware: Prisma.Middleware = async (
       params.args = params.args || {};
       params.args.where = params.args.where || {};
 
-      if (params.args.where.tenantId === undefined) {
-        params.args.where.tenantId = tenantId;
+      const where = params.args.where as Record<string, unknown>;
+      if (where.tenantId === undefined) {
+        where.tenantId = tenantId;
       }
     }
   }
@@ -67,8 +92,9 @@ export const tenantFilterMiddleware: Prisma.Middleware = async (
       params.args = params.args || {};
       params.args.where = params.args.where || {};
 
-      if (params.args.where.tenantId === undefined) {
-        params.args.where.tenantId = tenantId;
+      const where = params.args.where as Record<string, unknown>;
+      if (where.tenantId === undefined) {
+        where.tenantId = tenantId;
       }
     }
   }
@@ -77,8 +103,9 @@ export const tenantFilterMiddleware: Prisma.Middleware = async (
     params.args = params.args || {};
     params.args.data = params.args.data || {};
 
-    if (params.args.data.tenantId === undefined && model !== 'Tenant') {
-      params.args.data.tenantId = tenantId;
+    const data = params.args.data as Record<string, unknown>;
+    if (data.tenantId === undefined && model !== 'Tenant') {
+      data.tenantId = tenantId;
     }
   }
 

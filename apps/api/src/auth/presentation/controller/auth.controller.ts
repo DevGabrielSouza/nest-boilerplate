@@ -22,6 +22,7 @@ import { AppConfigService } from '@env-config/config.service';
 import { UserPresenter } from '../presenter/user.presenter';
 import { CookieService } from '../../application/service/cookie.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { LoginSuccessResponse } from '../../domain/types/login-response.type';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -47,20 +48,21 @@ export class AuthController {
       return {
         requiresTenantSelection: true,
         availableTenants: result.availableTenants,
-        userId: result.user.id,
+        userId: (result.user as { id: string }).id,
       };
     }
 
+    const successResult = result as LoginSuccessResponse;
     const res = req.res!;
     this.cookieService.setAccessTokenCookie(
       res,
-      result.accessToken,
+      successResult.accessToken,
       this.configService
     );
 
     return {
       message: 'Login successful',
-      tenant: result.selectedTenant,
+      tenant: successResult.selectedTenant,
     };
   }
 

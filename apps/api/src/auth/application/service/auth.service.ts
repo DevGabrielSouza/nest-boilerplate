@@ -8,6 +8,7 @@ import { AuthRepository } from '../../repositories/auth.repository';
 import { UserEntity } from 'apps/api/src/users/domain/entities/user.entity';
 import { AppConfigService } from 'libs/env-config/src/config.service';
 import { UnauthorizedError } from 'apps/api/src/common/errors/types/UnauthorizedError';
+import type { LoginResponse } from '../../domain/types/login-response.type';
 
 @Injectable()
 export class AuthService {
@@ -47,7 +48,7 @@ export class AuthService {
     }
   }
 
-  async login(authLoginDto: AuthLoginDto) {
+  async login(authLoginDto: AuthLoginDto): Promise<LoginResponse> {
     const result = await this.repository.login(authLoginDto);
 
     if (result.user.userTenants.length === 0) {
