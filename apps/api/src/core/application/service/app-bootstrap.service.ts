@@ -9,6 +9,7 @@ import { ConflictInterceptor } from 'apps/api/src/common/errors/interceptors/con
 import { DatabaseInterceptor } from 'apps/api/src/common/errors/interceptors/database.interceptor';
 import { ResponseInterceptor } from 'apps/api/src/common/interceptors/response.interceptor';
 import { TenantContextInterceptor } from 'apps/api/src/common/interceptors/tenant-context.interceptor';
+import { ThrottlerExceptionFilter } from 'apps/api/src/common/filters/throttler-exception.filter';
 import { AppConfigService } from '@env-config/config.service';
 import logger from '@nc/logger';
 
@@ -42,6 +43,8 @@ export class AppBootstrapService {
       origin: this.config.corsOrigin ?? 'http://localhost:3000',
       credentials: true,
     });
+
+    app.useGlobalFilters(new ThrottlerExceptionFilter());
 
     app.useGlobalInterceptors(
       new TenantContextInterceptor(),
