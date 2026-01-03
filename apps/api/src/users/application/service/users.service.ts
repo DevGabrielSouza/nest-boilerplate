@@ -8,6 +8,7 @@ import { UserDomainService } from '../../domain/services/user-domain.service';
 import { CreateTenantDto } from 'apps/api/src/tenants/domain/dto/create-tenant.dto';
 import { UsersRepository } from 'apps/api/src/users/infrastructure/database/users.repository';
 import { RedisService } from 'apps/api/src/redis/redis.service';
+import { runWithoutTenantFilter } from 'apps/api/src/prisma/middlewares/tenant-filter.middleware';
 
 @Injectable()
 export class UsersService {
@@ -75,7 +76,9 @@ export class UsersService {
   }
 
   async findOne(id: string): Promise<UserEntity | null> {
-    const user = await this.repository.findOne(id);
+    const user = await runWithoutTenantFilter(async () => {
+      return this.repository.findOne(id);
+    });
 
     if (!user) {
       return null;
@@ -92,17 +95,21 @@ export class UsersService {
   async findUserByIdAndTenantId(
     userId: string,
     tenantId: string
-  ): Promise<UserEntity> {
-    const user = await this.repository.findUserByIdAndTenantId(
+  ): Promise<UserEntity & { currentTenant: unknown; role: unknown }> {
+    const userTenant = await this.repository.findUserByIdAndTenantId(
       userId,
       tenantId
     );
 
-    if (!user) {
-      throw new NotFoundError('User not found');
+    if (!userTenant) {
+      throw new NotFoundError('User not found in this tenant');
     }
 
-    return user;
+    return {
+      ...userTenant.user,
+      currentTenant: userTenant.tenant,
+      role: userTenant.role,
+    };
   }
 
   update(id: string, updateUserDto: UpdateUserDto) {

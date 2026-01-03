@@ -26,45 +26,55 @@ model Session {
 }
 
 model Tenant {
-  id String @id @default(cuid())
+  id        String   @id @default(cuid())
   name      String
-  slug      String    @unique
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
-  User User[]
-
-  @@map("tenants")
-  TenantConfiguration TenantConfiguration[]
-}
-
-model User{
-  id String @id @default(cuid())
-  name         String
-  lastName     String
-  role      UserRole @default(USER)
-  email     String   @unique
-  password  String
-  taxId     String?
-  tenantId String?  
-
-  image     String?
-  emailVerifiedAt DateTime?
-  isTwoFactorEnabled Boolean @default(false)
-  twoFactorConfirmation TwoFactorConfirmation?
+  slug      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  tenant Tenant? @relation(fields: [tenantId], references: [id])
-  
-  sessions Session[]
+  userTenants         UserTenant[]
+  tenantConfigurations TenantConfiguration[]
 
-  @@index([tenantId], name: "tenantId")
-  @@index([email], name: "email_index") // Added index for email
+  @@map("tenants")
+}
 
-  @@unique([email, tenantId], name: "email_tenant_unique")
+model User {
+  id                     String    @id @default(cuid())
+  name                   String
+  lastName               String
+  email                  String    @unique
+  password               String
+  taxId                  String?
+  image                  String?
+  emailVerifiedAt        DateTime?
+  isTwoFactorEnabled     Boolean   @default(false)
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
 
+  sessions              Session[]
+  twoFactorConfirmation TwoFactorConfirmation?
+  userTenants           UserTenant[]
+
+  @@index([email], name: "email_index")
   @@map("users")
+}
+
+model UserTenant {
+  id        String   @id @default(cuid())
+  userId    String
+  tenantId  String
+  role      UserRole @default(USER)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tenantId], name: "user_tenant_unique")
+  @@index([userId], name: "userId_index")
+  @@index([tenantId], name: "tenantId_index")
+  @@map("user_tenants")
 }
 
 model VerificationToken {
@@ -116,14 +126,16 @@ model TwoFactorConfirmation {
 
 
 model Log {
-  id String @id @default(cuid())
-  tenantId  Int
-  userId    Int
+  id        String   @id @default(cuid())
+  tenantId  String
+  userId    String
   action    String
   entity    String
   entityId  String
-  createdAt DateTime  @default(now())
+  createdAt DateTime @default(now())
 
+  @@index([tenantId], name: "log_tenantId_index")
+  @@index([userId], name: "log_userId_index")
   @@map("logs")
 }
 

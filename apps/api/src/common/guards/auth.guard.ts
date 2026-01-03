@@ -26,11 +26,11 @@ export class AuthGuard implements CanActivate {
         tokenPayload.sub as string
       );
 
-      if (!user || !user.tenantId) return false;
+      if (!user || !tokenPayload.tenantId) return false;
 
       request.user = user;
       request.tokenPayload = tokenPayload;
-      request.tenantId = user.tenantId;
+      request.tenantId = tokenPayload.tenantId;
 
       return true;
     } catch {

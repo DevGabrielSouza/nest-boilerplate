@@ -11,7 +11,16 @@ export class UsersRepository {
 
   async create(createUserDto: CreateUserDto) {
     const newUser = await this.prisma.user.create({
-      data: createUserDto,
+      data: {
+        name: createUserDto.name,
+        lastName: createUserDto.lastName,
+        email: createUserDto.email,
+        password: createUserDto.password,
+        taxId: createUserDto.taxId,
+        image: createUserDto.image,
+        emailVerifiedAt: createUserDto.emailVerifiedAt,
+        isTwoFactorEnabled: createUserDto.isTwoFactorEnabled,
+      },
     });
 
     return newUser;
@@ -25,15 +34,30 @@ export class UsersRepository {
       data: {
         name: createTenantDto.name,
         slug: createTenantDto.slug,
-        User: {
+        userTenants: {
           create: {
-            ...createUserDto,
             role: UserRole.TENANT,
+            user: {
+              create: {
+                name: createUserDto.name,
+                lastName: createUserDto.lastName,
+                email: createUserDto.email,
+                password: createUserDto.password,
+                taxId: createUserDto.taxId,
+                image: createUserDto.image,
+                emailVerifiedAt: createUserDto.emailVerifiedAt,
+                isTwoFactorEnabled: createUserDto.isTwoFactorEnabled,
+              },
+            },
           },
         },
       },
       include: {
-        User: true,
+        userTenants: {
+          include: {
+            user: true,
+          },
+        },
       },
     });
   }
@@ -41,6 +65,14 @@ export class UsersRepository {
   async findByEmail(email: string) {
     const user = await this.prisma.user.findUnique({
       where: { email },
+      include: {
+        userTenants: {
+          where: { isActive: true },
+          include: {
+            tenant: true,
+          },
+        },
+      },
     });
 
     return user;
@@ -49,29 +81,49 @@ export class UsersRepository {
   async findOne(id: string) {
     const user = await this.prisma.user.findUnique({
       where: { id },
-    });
-
-    return user;
-  }
-
-  async findUserByIdAndTenantId(userId: string, tenantId: string) {
-    const user = await this.prisma.user.findFirst({
-      where: {
-        id: userId,
-        tenantId,
+      include: {
+        userTenants: {
+          where: { isActive: true },
+          include: {
+            tenant: true,
+          },
+        },
       },
     });
 
     return user;
   }
 
+  async findUserByIdAndTenantId(userId: string, tenantId: string) {
+    const userTenant = await this.prisma.userTenant.findUnique({
+      where: {
+        user_tenant_unique: {
+          userId,
+          tenantId,
+        },
+        isActive: true,
+      },
+      include: {
+        user: true,
+        tenant: true,
+      },
+    });
+
+    return userTenant;
+  }
+
   async findAll() {
     const users = await this.prisma.user.findMany({
       include: {
-        tenant: {
-          select: {
-            id: true,
-            name: true,
+        userTenants: {
+          where: { isActive: true },
+          include: {
+            tenant: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
           },
         },
       },
@@ -83,7 +135,13 @@ export class UsersRepository {
     const updatedUser = this.prisma.user.update({
       where: { id },
       data: {
-        ...updateUserDto,
+        name: updateUserDto.name,
+        lastName: updateUserDto.lastName,
+        email: updateUserDto.email,
+        taxId: updateUserDto.taxId,
+        image: updateUserDto.image,
+        emailVerifiedAt: updateUserDto.emailVerifiedAt,
+        isTwoFactorEnabled: updateUserDto.isTwoFactorEnabled,
       },
     });
     return updatedUser;

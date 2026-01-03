@@ -1,4 +1,4 @@
-import { User, UserRole, Session, TwoFactorConfirmation } from '@prisma/client';
+import { User, Session, TwoFactorConfirmation } from '@prisma/client';
 
 export class UserEntity implements User {
   id: string;
@@ -9,11 +9,9 @@ export class UserEntity implements User {
   emailVerifiedAt: Date;
   password: string;
   image: string;
-  role: UserRole;
   isTwoFactorEnabled: boolean;
   twoFactorConfirmation?: TwoFactorConfirmation;
   sessions?: Session[];
-  tenantId: string;
   createdAt: Date;
   updatedAt: Date;
 }

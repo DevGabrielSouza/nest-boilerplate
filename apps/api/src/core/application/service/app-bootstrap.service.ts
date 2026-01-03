@@ -7,6 +7,7 @@ import { UnauthorizedInterceptor } from 'apps/api/src/common/errors/interceptors
 import { ConflictInterceptor } from 'apps/api/src/common/errors/interceptors/conflict.interceptor';
 import { DatabaseInterceptor } from 'apps/api/src/common/errors/interceptors/database.interceptor';
 import { ResponseInterceptor } from 'apps/api/src/common/interceptors/response.interceptor';
+import { TenantContextInterceptor } from 'apps/api/src/common/interceptors/tenant-context.interceptor';
 import { AppConfigService } from '@env-config/config.service';
 import logger from '@nc/logger';
 
@@ -28,6 +29,7 @@ export class AppBootstrapService {
     });
 
     app.useGlobalInterceptors(
+      new TenantContextInterceptor(),
       new NotFoundInterceptor(),
       new UnauthorizedInterceptor(),
       new ConflictInterceptor(),

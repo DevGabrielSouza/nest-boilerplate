@@ -9,6 +9,7 @@ import { UnauthorizedError } from 'apps/api/src/common/errors/types/Unauthorized
 import { RequestContextService } from 'apps/api/src/request-provider/application/service/request-context.service';
 import { UsersService } from 'apps/api/src/users/application/service/users.service';
 import { AuthService } from 'apps/api/src/auth/application/service/auth.service';
+import { tenantContext } from 'apps/api/src/prisma/middlewares/tenant-filter.middleware';
 
 @Injectable()
 export class TenantInterceptor implements NestInterceptor {
@@ -24,38 +25,34 @@ export class TenantInterceptor implements NestInterceptor {
   ): Promise<Observable<unknown>> {
     const request = context.switchToHttp().getRequest();
 
-    // Recuperar o token dos cookies
     const token = request.cookies?.accessToken;
 
     if (!token) {
       throw new UnauthorizedError('Token is missing');
     }
 
-    // Validar o token
     const tokenData = this.authService.checkToken(token);
 
-    if (!tokenData) {
+    if (!tokenData || !tokenData.tenantId) {
       throw new UnauthorizedError('Invalid or expired token');
     }
 
-    // Recuperar o usuário logado a partir do token
     const user = await this.usersService.findOne(tokenData.sub as string);
 
     if (!user) {
       throw new UnauthorizedError('User not found');
     }
 
-    if (!user.tenantId) {
-      throw new UnauthorizedError('Tenant ID is required for the user');
-    }
-
-    // Injetar o tenantId e o usuário no request
     request.user = user;
     request.tokenPayload = tokenData;
-    request.tenantId = user.tenantId;
+    request.tenantId = tokenData.tenantId;
 
-    // Injetar o tenantId no contexto global para serviços
-    this.requestContextProvider.setTenantId(user.tenantId);
+    this.requestContextProvider.setTenantId(tokenData.tenantId);
+
+    const store = tenantContext.getStore();
+    if (store) {
+      store.tenantId = tokenData.tenantId;
+    }
 
     return next.handle();
   }

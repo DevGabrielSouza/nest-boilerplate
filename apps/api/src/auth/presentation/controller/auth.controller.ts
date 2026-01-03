@@ -15,6 +15,7 @@ import { AuthRegisterDto } from '../../domain/dto/auth-register.dto';
 import { AuthForgetDto } from '../../domain/dto/auth-forget.dto';
 import { AuthLoginDto } from '../../domain/dto/auth-login.dto';
 import { AuthResetDto } from '../../domain/dto/auth-reset.dto';
+import { SelectTenantDto } from '../../domain/dto/select-tenant.dto';
 import { AuthGuard } from 'apps/api/src/common/guards/auth.guard';
 import { User } from 'apps/api/src/common/decorators/user.decorator';
 import { AppConfigService } from '@env-config/config.service';
@@ -36,30 +37,79 @@ export class AuthController {
   @HttpCode(200)
   @ApiOperation({
     summary: 'Login',
-    description: 'Login with email and password',
+    description:
+      'Login with email and password. May require tenant selection if user has multiple tenants.',
   })
   async login(@Body() authLoginDto: AuthLoginDto, @Req() req: Request) {
-    const { accessToken } = await this.authService.login(authLoginDto);
+    const result = await this.authService.login(authLoginDto);
+
+    if (result.requiresTenantSelection) {
+      return {
+        requiresTenantSelection: true,
+        availableTenants: result.availableTenants,
+        userId: result.user.id,
+      };
+    }
 
     const res = req.res!;
+    this.cookieService.setAccessTokenCookie(
+      res,
+      result.accessToken,
+      this.configService
+    );
 
+    return {
+      message: 'Login successful',
+      tenant: result.selectedTenant,
+    };
+  }
+
+  @Post('select-tenant')
+  @HttpCode(200)
+  @ApiOperation({
+    summary: 'Select Tenant',
+    description: 'Select a tenant after login when user has multiple tenants',
+  })
+  async selectTenant(
+    @Body() selectTenantDto: SelectTenantDto,
+    @Body('userId') userId: string,
+    @Req() req: Request
+  ) {
+    const { accessToken } = await this.authService.selectTenant(
+      userId,
+      selectTenantDto.tenantId
+    );
+
+    const res = req.res!;
     this.cookieService.setAccessTokenCookie(
       res,
       accessToken,
       this.configService
     );
 
-    return { message: 'Login successful' };
+    return { message: 'Tenant selected successfully' };
   }
 
   @Post('register')
   @HttpCode(201)
   @ApiOperation({
     summary: 'Register',
-    description: 'Register a new user',
+    description: 'Register a new user with a new tenant',
   })
-  register(@Body() authRegisterDto: AuthRegisterDto) {
-    return this.authService.register(authRegisterDto);
+  async register(
+    @Body() authRegisterDto: AuthRegisterDto,
+    @Req() req: Request
+  ) {
+    const { accessToken } = await this.authService.register(authRegisterDto);
+
+    const res = req.res!;
+    this.cookieService.setAccessTokenCookie(
+      res,
+      accessToken,
+      this.configService
+    );
+
+    return { message: 'Registration successful' };
   }
 
   @Post('forget-password')
