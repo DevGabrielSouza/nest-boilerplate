@@ -3,7 +3,7 @@ import { tenantContext } from 'apps/api/src/prisma/middlewares/tenant-filter.mid
 
 @Injectable({ scope: Scope.REQUEST })
 export class RequestContextService {
-  private tenantId: string;
+  private tenantId: string | null = null;
 
   setTenantId(tenantId: string) {
     this.tenantId = tenantId;
@@ -14,7 +14,7 @@ export class RequestContextService {
     }
   }
 
-  getTenantId(): string {
+  getTenantId(): string | null {
     return this.tenantId;
   }
 

@@ -1,5 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import { ConflictError } from 'apps/api/src/common/errors/types/ConflictError';
+import { AppConfigService } from '@env-config/config.service';
 
 type PasswordProps = {
   value: string;
@@ -8,6 +9,7 @@ type PasswordProps = {
 
 export class Password {
   readonly value: string;
+  private static configService: AppConfigService;
 
   constructor({ value, confirmValue }: PasswordProps) {
     this.ensureMinLength(value);
@@ -17,23 +19,19 @@ export class Password {
     this.value = value;
   }
 
-  /**
-   * Gera o hash da senha.
-   */
-  async toHashed(): Promise<string> {
-    return bcrypt.hash(this.value, 10);
+  static setConfigService(configService: AppConfigService): void {
+    Password.configService = configService;
   }
 
-  /**
-   * Verifica se a senha corresponde ao hash.
-   */
+  async toHashed(): Promise<string> {
+    const saltRounds = Password.configService?.bcryptSaltRounds ?? 12;
+    return bcrypt.hash(this.value, saltRounds);
+  }
+
   async matches(hashedValue: string): Promise<boolean> {
     return bcrypt.compare(this.value, hashedValue);
   }
 
-  /**
-   * Garante que a senha tenha o comprimento mínimo.
-   */
   private ensureMinLength(value: string, minLength = 6): void {
     if (value.length < minLength) {
       throw new Error(
@@ -42,18 +40,12 @@ export class Password {
     }
   }
 
-  /**
-   * Garante que a senha e a confirmação sejam iguais.
-   */
   private ensureMatch(value: string, confirmValue: string): void {
     if (value !== confirmValue) {
       throw new ConflictError('Passwords do not match.');
     }
   }
 
-  /**
-   * Retorna a senha formatada para envio seguro (exemplo fictício).
-   */
   static secureFormat(value: string): string {
     return value.replace(/./g, '*');
   }

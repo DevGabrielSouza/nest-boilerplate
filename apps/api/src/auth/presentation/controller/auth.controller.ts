@@ -18,6 +18,7 @@ import { AuthResetDto } from '../../domain/dto/auth-reset.dto';
 import { SelectTenantDto } from '../../domain/dto/select-tenant.dto';
 import { AuthGuard } from 'apps/api/src/common/guards/auth.guard';
 import { User } from 'apps/api/src/common/decorators/user.decorator';
+import { UserEntity } from 'apps/api/src/users/domain/entities/user.entity';
 import { AppConfigService } from '@env-config/config.service';
 import { UserPresenter } from '../presenter/user.presenter';
 import { CookieService } from '../../application/service/cookie.service';
@@ -141,7 +142,7 @@ export class AuthController {
     summary: 'Get Current User',
     description: 'Get the current authenticated user',
   })
-  async me(@User() user) {
+  async me(@User() user: UserEntity) {
     const currentUser = await this.authService.getCurrentUser(user);
     return this.userPresenter.present(currentUser);
   }

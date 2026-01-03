@@ -72,4 +72,16 @@ export class AppConfigService {
   get corsOrigin(): string {
     return this.envConfig.FRONTEND_URL;
   }
+
+  get bcryptSaltRounds(): number {
+    return this.envConfig.BCRYPT_SALT_ROUNDS;
+  }
+
+  get rateLimitTtl(): number {
+    return this.envConfig.RATE_LIMIT_TTL;
+  }
+
+  get rateLimitMax(): number {
+    return this.envConfig.RATE_LIMIT_MAX;
+  }
 }

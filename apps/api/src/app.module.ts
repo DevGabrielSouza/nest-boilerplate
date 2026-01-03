@@ -15,11 +15,24 @@ import { RequestContextService } from './request-provider/application/service/re
 import { AuthModule } from './auth/auth.module';
 import { RedisModule } from './redis/redis.module';
 import { AppBootstrapService } from './core/application/service/app-bootstrap.service';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+import { AppConfigService } from '../../../libs/env-config/src/config.service';
 
 @Module({
   imports: [
     PrismaModule,
     AppConfigModule,
+    ThrottlerModule.forRootAsync({
+      imports: [AppConfigModule],
+      inject: [AppConfigService],
+      useFactory: (config: AppConfigService) => [
+        {
+          ttl: config.rateLimitTtl * 1000,
+          limit: config.rateLimitMax,
+        },
+      ],
+    }),
     TenantModule,
     UsersModule,
     RequestContextModule,
@@ -35,6 +48,10 @@ import { AppBootstrapService } from './core/application/service/app-bootstrap.se
     UsersRepository,
     RequestContextService,
     AppBootstrapService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}

@@ -2,13 +2,13 @@ import { User, Session, TwoFactorConfirmation } from '@prisma/client';
 
 export class UserEntity implements User {
   id: string;
-  taxId: string;
+  taxId: string | null;
   name: string;
   lastName: string;
   email: string;
-  emailVerifiedAt: Date;
+  emailVerifiedAt: Date | null;
   password: string;
-  image: string;
+  image: string | null;
   isTwoFactorEnabled: boolean;
   twoFactorConfirmation?: TwoFactorConfirmation;
   sessions?: Session[];

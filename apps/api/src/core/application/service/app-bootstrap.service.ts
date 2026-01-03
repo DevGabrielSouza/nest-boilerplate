@@ -1,5 +1,6 @@
 import { INestApplication, Injectable, ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
+import helmet from 'helmet';
 
 import { NotFoundInterceptor } from 'apps/api/src/common/errors/interceptors/notfound.interceptor';
 import { PrismaService } from 'apps/api/src/prisma/prisma.service';
@@ -20,6 +21,20 @@ export class AppBootstrapService {
 
   async configure(app: INestApplication): Promise<void> {
     logger.info('🔧 Configurando middlewares e interceptors');
+
+    app.use(
+      helmet({
+        contentSecurityPolicy: {
+          directives: {
+            defaultSrc: ["'self'"],
+            styleSrc: ["'self'", "'unsafe-inline'"],
+            scriptSrc: ["'self'"],
+            imgSrc: ["'self'", 'data:', 'https:'],
+          },
+        },
+        crossOriginEmbedderPolicy: false,
+      })
+    );
 
     app.use(cookieParser());
 

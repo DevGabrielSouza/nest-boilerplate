@@ -7,7 +7,7 @@ export class RedisService {
     @Inject('REDIS_PROVIDER') private readonly redisService: ClientProxy
   ) {}
 
-  public async get(key: string): Promise<string> {
+  public async get(key: string): Promise<string | undefined> {
     return this.redisService.send<string, string>('get', key).toPromise();
   }
 
