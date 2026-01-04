@@ -4,10 +4,13 @@ import { CreateTenantDto } from 'apps/api/src/tenants/domain/dto/create-tenant.d
 import { UserRole } from '@prisma/client';
 import { CreateUserDto } from 'apps/api/src/users/domain/dto/create-user.dto';
 import { UpdateUserDto } from 'apps/api/src/users/domain/dto/update-user.dto';
+import { UserRepository } from 'apps/api/src/users/domain/repositories/user.repository';
 
 @Injectable()
-export class UsersRepository {
-  constructor(private readonly prisma: PrismaService) {}
+export class PrismaUserRepository extends UserRepository {
+  constructor(private readonly prisma: PrismaService) {
+    super();
+  }
 
   async create(createUserDto: CreateUserDto) {
     const newUser = await this.prisma.user.create({
@@ -118,12 +121,7 @@ export class UsersRepository {
         userTenants: {
           where: { isActive: true },
           include: {
-            tenant: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
+            tenant: true,
           },
         },
       },

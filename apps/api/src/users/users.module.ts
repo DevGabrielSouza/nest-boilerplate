@@ -2,7 +2,8 @@ import { forwardRef, Module } from '@nestjs/common';
 import { UsersService } from './application/service/users.service';
 import { PrismaService } from 'apps/api/src/prisma/prisma.service';
 import { UserDomainService } from './domain/services/user-domain.service';
-import { UsersRepository } from './infrastructure/database/users.repository';
+import { PrismaUserRepository } from './infrastructure/database/prisma-user.repository';
+import { UserRepository } from './domain/repositories/user.repository';
 import { UsersController } from './presentation/controller/users.controller';
 import { UserActionsController } from './presentation/controller/user-actions.controller';
 import { AuthModule } from '../auth/auth.module';
@@ -19,15 +20,22 @@ import { UserAddedToTenantHandler } from './application/event-handlers/user-adde
   providers: [
     UsersService,
     PrismaService,
-    UsersRepository,
+    {
+      provide: UserRepository,
+      useClass: PrismaUserRepository,
+    },
     UserDomainService,
     DomainEventDispatcher,
-    // Event Handlers
     UserRegisteredHandler,
     UserEmailVerifiedHandler,
     UserTwoFactorEnabledHandler,
     UserAddedToTenantHandler,
   ],
-  exports: [UsersService, UserDomainService, DomainEventDispatcher],
+  exports: [
+    UsersService,
+    UserDomainService,
+    DomainEventDispatcher,
+    UserRepository,
+  ],
 })
 export class UsersModule {}

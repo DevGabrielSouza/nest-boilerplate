@@ -4,7 +4,6 @@ import { AuthController } from './presentation/controller/auth.controller';
 import { PrismaService } from 'apps/api/src/prisma/prisma.service';
 import { AuthRepository } from './repositories/auth.repository';
 import { UsersService } from 'apps/api/src/users/application/service/users.service';
-import { UsersRepository } from 'apps/api/src/users/infrastructure/database/users.repository';
 import { JwtModule } from '@nestjs/jwt';
 import { UsersModule } from 'apps/api/src/users/users.module';
 import { AppConfigModule } from 'libs/env-config/src/config.module';
@@ -17,7 +16,7 @@ import { CookieService } from './application/service/cookie.service';
   controllers: [AuthController],
   imports: [
     JwtModule.registerAsync({
-      imports: [AppConfigModule], // Importa o AppConfigModule para resolver dependências
+      imports: [AppConfigModule],
       useFactory: async (configService: AppConfigService) => ({
         secret: configService.jwtSecret,
         signOptions: { expiresIn: configService.jwtExpiration },
@@ -25,12 +24,11 @@ import { CookieService } from './application/service/cookie.service';
       inject: [AppConfigService],
     }),
     forwardRef(() => UsersModule),
-    AppConfigModule, // Importa o AppConfigModule
+    AppConfigModule,
     RedisModule,
   ],
   providers: [
     UsersService,
-    UsersRepository,
     CookieService,
     AuthService,
     PrismaService,

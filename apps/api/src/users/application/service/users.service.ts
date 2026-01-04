@@ -7,14 +7,14 @@ import { UserTenantEntity } from '../../domain/entities/user-tenant.entity';
 import { Password } from 'apps/api/src/shared/domain/value-objects/password';
 import { UserDomainService } from '../../domain/services/user-domain.service';
 import { CreateTenantDto } from 'apps/api/src/tenants/domain/dto/create-tenant.dto';
-import { UsersRepository } from 'apps/api/src/users/infrastructure/database/users.repository';
+import { UserRepository } from 'apps/api/src/users/domain/repositories/user.repository';
 import { DomainEventDispatcher } from 'apps/api/src/shared/domain/events/domain-event-dispatcher';
 import { runWithoutTenantFilter } from 'apps/api/src/prisma/middlewares/tenant-filter.middleware';
 
 @Injectable()
 export class UsersService {
   constructor(
-    private readonly repository: UsersRepository,
+    private readonly repository: UserRepository,
     private readonly userDomainService: UserDomainService,
     private readonly eventDispatcher: DomainEventDispatcher
   ) {}

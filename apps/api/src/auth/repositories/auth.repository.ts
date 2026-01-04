@@ -3,7 +3,7 @@ import { PrismaService } from 'apps/api/src/prisma/prisma.service';
 import { AuthLoginDto } from '../domain/dto/auth-login.dto';
 import { AuthRegisterDto } from '../domain/dto/auth-register.dto';
 import { ConflictError } from 'apps/api/src/common/errors/types/ConflictError';
-import { UsersRepository } from 'apps/api/src/users/infrastructure/database/users.repository';
+import { UserRepository } from 'apps/api/src/users/domain/repositories/user.repository';
 import { Password } from 'apps/api/src/shared/domain/value-objects/password';
 import { NotFoundError } from '../../common/errors/types/NotFoundError';
 import { runWithoutTenantFilter } from 'apps/api/src/prisma/middlewares/tenant-filter.middleware';
@@ -15,7 +15,7 @@ import { UserTenantEntity } from 'apps/api/src/users/domain/entities/user-tenant
 export class AuthRepository {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly usersRepository: UsersRepository
+    private readonly usersRepository: UserRepository
   ) {}
 
   async login({ email, password }: AuthLoginDto) {

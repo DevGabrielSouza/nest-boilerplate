@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ConflictError } from 'apps/api/src/common/errors/types/ConflictError';
-import { UsersRepository } from 'apps/api/src/users/infrastructure/database/users.repository';
+import { UserRepository } from 'apps/api/src/users/domain/repositories/user.repository';
 
 @Injectable()
 export class UserDomainService {
-  constructor(private readonly repository: UsersRepository) {}
+  constructor(private readonly repository: UserRepository) {}
 
   async ensureUserDoesNotExist(email: string): Promise<void> {
     const userAlreadyExists = await this.repository.findByEmail(email);
