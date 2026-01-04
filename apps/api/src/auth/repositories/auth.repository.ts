@@ -8,6 +8,8 @@ import { Password } from 'apps/api/src/shared/domain/value-objects/password';
 import { NotFoundError } from '../../common/errors/types/NotFoundError';
 import { runWithoutTenantFilter } from 'apps/api/src/prisma/middlewares/tenant-filter.middleware';
 import { UserRole } from '@prisma/client';
+import { UserEntity } from 'apps/api/src/users/domain/entities/user.entity';
+import { UserTenantEntity } from 'apps/api/src/users/domain/entities/user-tenant.entity';
 
 @Injectable()
 export class AuthRepository {
@@ -17,7 +19,7 @@ export class AuthRepository {
   ) {}
 
   async login({ email, password }: AuthLoginDto) {
-    const user = await runWithoutTenantFilter(async () => {
+    const userData = await runWithoutTenantFilter(async () => {
       return this.prisma.user.findUnique({
         where: { email: email },
         include: {
@@ -31,16 +33,25 @@ export class AuthRepository {
       });
     });
 
-    if (!user) {
+    if (!userData) {
       throw new NotFoundError('User not found');
     }
 
     const passwordVO = new Password({ value: password });
-    const matchPassword = await passwordVO.matches(user.password);
+    const matchPassword = await passwordVO.matches(userData.password);
 
     if (!matchPassword) {
       throw new ConflictError('Email or password is incorrect');
     }
+
+    const userTenants = userData.userTenants?.map((ut) =>
+      UserTenantEntity.reconstitute(ut)
+    );
+
+    const user = UserEntity.reconstitute({
+      ...userData,
+      userTenants,
+    });
 
     return { user };
   }
@@ -66,8 +77,10 @@ export class AuthRepository {
       throw new NotFoundError('User not found in this tenant or access denied');
     }
 
+    const user = UserEntity.reconstitute(userTenant.user);
+
     return {
-      user: userTenant.user,
+      user,
       tenantId: userTenant.tenantId,
       role: userTenant.role,
     };
@@ -84,9 +97,10 @@ export class AuthRepository {
       );
 
       const userTenant = result.userTenants[0];
+      const user = UserEntity.reconstitute(userTenant.user);
 
       return {
-        user: userTenant.user,
+        user,
         tenantId: result.id,
         role: UserRole.TENANT,
       };

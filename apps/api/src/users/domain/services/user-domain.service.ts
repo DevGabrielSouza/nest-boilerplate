@@ -9,7 +9,9 @@ export class UserDomainService {
   async ensureUserDoesNotExist(email: string): Promise<void> {
     const userAlreadyExists = await this.repository.findByEmail(email);
     if (userAlreadyExists) {
-      throw new ConflictError('User already exists');
+      throw new ConflictError(
+        'Não foi possível completar o cadastro. Verifique os dados e tente novamente.'
+      );
     }
   }
 }

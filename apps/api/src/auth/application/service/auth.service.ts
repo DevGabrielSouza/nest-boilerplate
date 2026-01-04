@@ -51,7 +51,7 @@ export class AuthService {
   async login(authLoginDto: AuthLoginDto): Promise<LoginResponse> {
     const result = await this.repository.login(authLoginDto);
 
-    if (result.user.userTenants.length === 0) {
+    if (!result.user.userTenants || result.user.userTenants.length === 0) {
       throw new UnauthorizedError('User has no active tenants');
     }
 
@@ -66,7 +66,11 @@ export class AuthService {
         ...token,
         requiresTenantSelection: false,
         user: result.user,
-        selectedTenant: userTenant.tenant,
+        selectedTenant: {
+          id: userTenant.tenant?.id ?? '',
+          name: userTenant.tenant?.name ?? '',
+          slug: userTenant.tenant?.slug ?? '',
+        },
       };
     }
 
@@ -74,9 +78,9 @@ export class AuthService {
       requiresTenantSelection: true,
       user: result.user,
       availableTenants: result.user.userTenants.map((ut) => ({
-        id: ut.tenant.id,
-        name: ut.tenant.name,
-        slug: ut.tenant.slug,
+        id: ut.tenant?.id ?? '',
+        name: ut.tenant?.name ?? '',
+        slug: ut.tenant?.slug ?? '',
         role: ut.role,
       })),
     };
