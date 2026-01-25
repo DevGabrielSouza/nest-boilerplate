@@ -1,5 +1,6 @@
-import { INestApplication, Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
+import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 import { tenantFilterMiddleware } from './middlewares/tenant-filter.middleware';
 import logger from '@nc/logger';
 
@@ -20,8 +21,41 @@ type PrismaAction =
   | 'findFirstOrThrow'
   | 'upsert';
 
+function parseConnectionString(connectionString: string) {
+  const url = new URL(connectionString);
+  return {
+    host: url.hostname,
+    port: url.port ? parseInt(url.port, 10) : 3306,
+    user: url.username,
+    password: url.password,
+    database: url.pathname.slice(1),
+  };
+}
+
 @Injectable()
-export class PrismaService extends PrismaClient implements OnModuleInit {
+export class PrismaService
+  extends PrismaClient
+  implements OnModuleInit, OnModuleDestroy
+{
+  constructor() {
+    const databaseUrl = process.env.DATABASE_URL;
+    if (!databaseUrl) {
+      throw new Error('DATABASE_URL is not defined');
+    }
+
+    const config = parseConnectionString(databaseUrl);
+    const adapter = new PrismaMariaDb({
+      host: config.host,
+      port: config.port,
+      user: config.user,
+      password: config.password,
+      database: config.database,
+      connectionLimit: 5,
+    });
+
+    super({ adapter });
+  }
+
   async onModuleInit() {
     await this.$connect();
 
@@ -51,10 +85,6 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     });
 
     logger.info('🔒 Prisma tenant filtering middleware ativado');
-  }
-
-  async enableShutdownHooks(app: INestApplication) {
-    app.enableShutdownHooks();
   }
 
   async onModuleDestroy() {
