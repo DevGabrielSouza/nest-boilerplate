@@ -8,18 +8,19 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from 'apps/api/src/common/guards/auth.guard';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { UsersRepository } from 'apps/api/src/users/infrastructure/database/users.repository';
+import { UserRepository } from 'apps/api/src/users/domain/repositories/user.repository';
 import { UserEntity } from '../../domain/entities/user.entity';
 import { UserTenantEntity } from '../../domain/entities/user-tenant.entity';
 import { NotFoundError } from 'apps/api/src/common/errors/types/NotFoundError';
 import { DomainEventDispatcher } from 'apps/api/src/shared/domain/events/domain-event-dispatcher';
+import { UserTenant, Tenant } from '@prisma/client';
 
 @ApiTags('User Actions')
 @UseGuards(AuthGuard)
 @Controller('users')
 export class UserActionsController {
   constructor(
-    private readonly repository: UsersRepository,
+    private readonly repository: UserRepository,
     private readonly eventDispatcher: DomainEventDispatcher
   ) {}
 
@@ -33,8 +34,9 @@ export class UserActionsController {
       throw new NotFoundError('Usuário não encontrado');
     }
 
-    const userTenants = userData.userTenants?.map((ut) =>
-      UserTenantEntity.reconstitute(ut)
+    const userTenants = userData.userTenants?.map(
+      (ut: UserTenant & { tenant?: Tenant }) =>
+        UserTenantEntity.reconstitute(ut)
     );
 
     const user = UserEntity.reconstitute({
@@ -69,8 +71,9 @@ export class UserActionsController {
       throw new NotFoundError('Usuário não encontrado');
     }
 
-    const userTenants = userData.userTenants?.map((ut) =>
-      UserTenantEntity.reconstitute(ut)
+    const userTenants = userData.userTenants?.map(
+      (ut: UserTenant & { tenant?: Tenant }) =>
+        UserTenantEntity.reconstitute(ut)
     );
 
     const user = UserEntity.reconstitute({
@@ -105,8 +108,9 @@ export class UserActionsController {
       throw new NotFoundError('Usuário não encontrado');
     }
 
-    const userTenants = userData.userTenants?.map((ut) =>
-      UserTenantEntity.reconstitute(ut)
+    const userTenants = userData.userTenants?.map(
+      (ut: UserTenant & { tenant?: Tenant }) =>
+        UserTenantEntity.reconstitute(ut)
     );
 
     const user = UserEntity.reconstitute({

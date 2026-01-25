@@ -21,7 +21,6 @@ export class AuthService {
   async createToken(user: UserEntity, tenantId: string, role: string) {
     try {
       const secret = this.configService.jwtSecret;
-      const expiration = this.configService.jwtExpiration;
       const accessToken = this.jwtService.sign(
         {
           name: user.name,
@@ -30,7 +29,11 @@ export class AuthService {
           tenantId: tenantId,
           isTwoFactorEnabled: user.isTwoFactorEnabled,
         },
-        { secret, expiresIn: expiration, subject: String(user.id) }
+        {
+          secret,
+          expiresIn: this.configService.jwtExpiration,
+          subject: String(user.id),
+        }
       );
 
       return { accessToken };
