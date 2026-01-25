@@ -10,6 +10,7 @@ import { CreateTenantDto } from 'apps/api/src/tenants/domain/dto/create-tenant.d
 import { UserRepository } from 'apps/api/src/users/domain/repositories/user.repository';
 import { DomainEventDispatcher } from 'apps/api/src/shared/domain/events/domain-event-dispatcher';
 import { runWithoutTenantFilter } from 'apps/api/src/prisma/middlewares/tenant-filter.middleware';
+import { UserTenantPersistence } from '../../infrastructure/persistence';
 
 @Injectable()
 export class UsersService {
@@ -72,7 +73,7 @@ export class UsersService {
       return null;
     }
 
-    const userTenants = userData.userTenants?.map((ut) =>
+    const userTenants = userData.userTenants?.map((ut: UserTenantPersistence) =>
       UserTenantEntity.reconstitute(ut)
     );
 
@@ -91,7 +92,7 @@ export class UsersService {
       return null;
     }
 
-    const userTenants = userData.userTenants?.map((ut) =>
+    const userTenants = userData.userTenants?.map((ut: UserTenantPersistence) =>
       UserTenantEntity.reconstitute(ut)
     );
 
@@ -104,8 +105,8 @@ export class UsersService {
   async findAll(): Promise<UserEntity[]> {
     const usersData = await this.repository.findAll();
     return usersData.map((userData) => {
-      const userTenants = userData.userTenants?.map((ut) =>
-        UserTenantEntity.reconstitute(ut)
+      const userTenants = userData.userTenants?.map(
+        (ut: UserTenantPersistence) => UserTenantEntity.reconstitute(ut)
       );
       return UserEntity.reconstitute({
         ...userData,

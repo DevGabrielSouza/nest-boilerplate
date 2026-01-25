@@ -3,6 +3,23 @@ import { PrismaClient } from '@prisma/client';
 import { tenantFilterMiddleware } from './middlewares/tenant-filter.middleware';
 import logger from '@nc/logger';
 
+type PrismaAction =
+  | 'findUnique'
+  | 'findFirst'
+  | 'findMany'
+  | 'count'
+  | 'aggregate'
+  | 'groupBy'
+  | 'update'
+  | 'updateMany'
+  | 'delete'
+  | 'deleteMany'
+  | 'create'
+  | 'createMany'
+  | 'findUniqueOrThrow'
+  | 'findFirstOrThrow'
+  | 'upsert';
+
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
   async onModuleInit() {
@@ -11,8 +28,22 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     this.$extends({
       query: {
         $allModels: {
-          async $allOperations({ operation, model, args, query }) {
-            const context = { model, action: operation, args };
+          async $allOperations({
+            operation,
+            model,
+            args,
+            query,
+          }: {
+            operation: string;
+            model: string;
+            args: Record<string, unknown>;
+            query: (args: Record<string, unknown>) => Promise<unknown>;
+          }) {
+            const context = {
+              model,
+              action: operation as PrismaAction,
+              args,
+            };
             return tenantFilterMiddleware(context, () => query(args));
           },
         },
