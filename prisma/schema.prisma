@@ -21,6 +21,7 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("sessions")
+  @@index([userId], name: "session_userId_index")
 }
 
 model Tenant {
@@ -32,6 +33,7 @@ model Tenant {
 
   userTenants         UserTenant[]
   tenantConfigurations TenantConfiguration[]
+  logs                Log[]
 
   @@map("tenants")
 }
@@ -52,6 +54,7 @@ model User {
   sessions              Session[]
   twoFactorConfirmation TwoFactorConfirmation?
   userTenants           UserTenant[]
+  logs                  Log[]
 
   @@index([email], name: "email_index")
   @@map("users")
@@ -132,10 +135,14 @@ model Log {
   entityId  String
   createdAt DateTime @default(now())
 
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([tenantId], name: "log_tenantId_index")
   @@index([userId], name: "log_userId_index")
   @@map("logs")
 }
+
 
 model TenantConfiguration {
   id String @id @default(cuid())
@@ -147,7 +154,7 @@ model TenantConfiguration {
 
   @@unique([tenantId, key], name: "tenant_key_unique")
 
-  tenant Tenant @relation(fields: [tenantId], references: [id])
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@map("tenant_configurations")
 }
