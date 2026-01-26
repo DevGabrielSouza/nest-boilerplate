@@ -51,6 +51,7 @@ export class PrismaService
       password: config.password,
       database: config.database,
       connectionLimit: 5,
+      allowPublicKeyRetrieval: true,
     });
 
     super({ adapter });
