@@ -3,7 +3,6 @@ import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 
 import { NotFoundInterceptor } from 'apps/api/src/common/errors/interceptors/notfound.interceptor';
-import { PrismaService } from 'apps/api/src/prisma/prisma.service';
 import { UnauthorizedInterceptor } from 'apps/api/src/common/errors/interceptors/unauthorized.interceptor';
 import { ConflictInterceptor } from 'apps/api/src/common/errors/interceptors/conflict.interceptor';
 import { DatabaseInterceptor } from 'apps/api/src/common/errors/interceptors/database.interceptor';
@@ -15,10 +14,7 @@ import logger from '@nc/logger';
 
 @Injectable()
 export class AppBootstrapService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly config: AppConfigService
-  ) {}
+  constructor(private readonly config: AppConfigService) {}
 
   async configure(app: INestApplication): Promise<void> {
     logger.info('🔧 Configurando middlewares e interceptors');
@@ -61,8 +57,6 @@ export class AppBootstrapService {
   }
 
   private async setupShutdownHooks(app: INestApplication): Promise<void> {
-    await this.prisma.enableShutdownHooks(app);
-
     const shutdown = async (signal: string) => {
       logger.warn(`📴 Received shutdown signal: ${signal}`);
       await app.close();

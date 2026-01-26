@@ -10,6 +10,7 @@ import { runWithoutTenantFilter } from 'apps/api/src/prisma/middlewares/tenant-f
 import { UserRole } from '@prisma/client';
 import { UserEntity } from 'apps/api/src/users/domain/entities/user.entity';
 import { UserTenantEntity } from 'apps/api/src/users/domain/entities/user-tenant.entity';
+import { UserTenantPersistence } from 'apps/api/src/users/infrastructure/persistence';
 
 @Injectable()
 export class AuthRepository {
@@ -44,7 +45,7 @@ export class AuthRepository {
       throw new ConflictError('Email or password is incorrect');
     }
 
-    const userTenants = userData.userTenants?.map((ut) =>
+    const userTenants = userData.userTenants?.map((ut: UserTenantPersistence) =>
       UserTenantEntity.reconstitute(ut)
     );
 

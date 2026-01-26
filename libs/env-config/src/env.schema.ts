@@ -18,6 +18,8 @@ export const envSchema = z.object({
   REDIS_HOST: z.string(),
   REDIS_PORT: z.string().transform((port) => parseInt(port, 10)),
 
+  LOG_LEVEL: z.string().default('info'),
+
   BCRYPT_SALT_ROUNDS: z
     .string()
     .default('12')

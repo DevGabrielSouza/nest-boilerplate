@@ -6,7 +6,7 @@ import { AuthForgetDto } from '../../domain/dto/auth-forget.dto';
 import { AuthResetDto } from '../../domain/dto/auth-reset.dto';
 import { AuthRepository } from '../../repositories/auth.repository';
 import { UserEntity } from 'apps/api/src/users/domain/entities/user.entity';
-import { AppConfigService } from 'libs/env-config/src/config.service';
+import { AppConfigService } from '@env-config/config.service';
 import { UnauthorizedError } from 'apps/api/src/common/errors/types/UnauthorizedError';
 import type { LoginResponse } from '../../domain/types/login-response.type';
 
@@ -21,7 +21,6 @@ export class AuthService {
   async createToken(user: UserEntity, tenantId: string, role: string) {
     try {
       const secret = this.configService.jwtSecret;
-      const expiration = this.configService.jwtExpiration;
       const accessToken = this.jwtService.sign(
         {
           name: user.name,
@@ -30,7 +29,11 @@ export class AuthService {
           tenantId: tenantId,
           isTwoFactorEnabled: user.isTwoFactorEnabled,
         },
-        { secret, expiresIn: expiration, subject: String(user.id) }
+        {
+          secret,
+          expiresIn: this.configService.jwtExpiration,
+          subject: String(user.id),
+        }
       );
 
       return { accessToken };

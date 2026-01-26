@@ -9,7 +9,6 @@ import { TenantService } from './tenants/application/service/tenants.service';
 import { PrismaTenantRepository } from './tenants/infrastructure/database/prisma-tenant.repository';
 import { UsersService } from './users/application/service/users.service';
 import { UsersModule } from './users/users.module';
-import { UsersRepository } from './users/infrastructure/database/users.repository';
 import { RequestContextModule } from './request-provider/request-context.module';
 import { RequestContextService } from './request-provider/application/service/request-context.service';
 import { AuthModule } from './auth/auth.module';
@@ -45,7 +44,6 @@ import { AppConfigService } from '../../../libs/env-config/src/config.service';
     UsersService,
     TenantService,
     PrismaTenantRepository,
-    UsersRepository,
     RequestContextService,
     AppBootstrapService,
     {

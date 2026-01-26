@@ -1,10 +1,13 @@
 #!/bin/sh
+set -e
 
-# 1. Aplicar as migrações
+echo "🚀 Starting PROD environment"
+
+echo "📦 Generating Prisma Client"
 npx prisma generate
+
+echo "🗄️ Applying database migrations (prod)"
 npx prisma migrate deploy
 
-npm yarn start:prod
-
-# 3. Iniciar a aplicação
-exec "$@"
+echo "▶️ Starting API"
+yarn start:prod:api

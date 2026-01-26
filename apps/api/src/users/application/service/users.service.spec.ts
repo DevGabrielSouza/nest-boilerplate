@@ -27,11 +27,15 @@ describe('UsersService', () => {
 
     mockDomainService = {
       ensureUserDoesNotExist: jest.fn(),
-    } as jest.Mocked<UserDomainService>;
+    } as unknown as jest.Mocked<UserDomainService>;
 
     mockEventDispatcher = {
+      register: jest.fn(),
+      dispatch: jest.fn(),
       dispatchAll: jest.fn(),
-    } as jest.Mocked<DomainEventDispatcher>;
+      clearHandlers: jest.fn(),
+      clearAllHandlers: jest.fn(),
+    } as unknown as jest.Mocked<DomainEventDispatcher>;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
