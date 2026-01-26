@@ -1,6 +1,6 @@
 import pino from 'pino';
 import { ConfigService } from '@nestjs/config';
-import { envSchema } from '@env-config/env.schema';
+import { loggerEnvSchema } from './logger.env';
 
 type Logger = {
   info: (...args: unknown[]) => void;
@@ -27,7 +27,7 @@ if (isTest) {
     fatal: noop,
   };
 } else {
-  const parsedEnv = envSchema.parse(process.env);
+  const parsedEnv = loggerEnvSchema.parse(process.env);
   const configService = new ConfigService(parsedEnv);
 
   logger = pino({
