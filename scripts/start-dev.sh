@@ -1,14 +1,13 @@
 #!/bin/sh
+set -e
 
-echo "Iniciando script start-dev.sh"
+echo "🚀 Starting DEV environment"
 
-# 1. Aplicar as migrações
-echo "Gerando o Prisma Client"
+echo "📦 Generating Prisma Client"
 npx prisma generate
 
-echo "Aplicando migrações ao banco de dados"
-npx prisma db push --force-reset
+echo "🗄️ Applying database migrations (dev)"
+npx prisma migrate dev --name init --skip-seed || npx prisma migrate deploy
 
-# 2. Iniciar a aplicação
-echo "Iniciando a aplicação com Yarn"
+echo "▶️ Starting API (dev mode)"
 yarn start:dev api

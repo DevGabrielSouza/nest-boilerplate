@@ -1,10 +1,8 @@
 #!/bin/sh
 
-# 1. Aplicar as migrações
 npx prisma generate
 npx prisma migrate deploy
 
-npm yarn start:prod
+yarn start:prod:api
 
-# 3. Iniciar a aplicação
 exec "$@"

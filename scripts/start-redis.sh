@@ -1,5 +1,5 @@
 #!/bin/sh
-echo "Iniciando Redis"
+set -e
 
-# Inicializar Redis (adicionar lógica específica caso necessário)
+echo "🚀 Starting Redis worker"
 yarn start:dev redis
