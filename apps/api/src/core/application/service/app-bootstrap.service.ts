@@ -1,5 +1,5 @@
 import { INestApplication, Injectable, ValidationPipe } from '@nestjs/common';
-import cookieParser from 'cookie-parser';
+import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 
 import { NotFoundInterceptor } from 'apps/api/src/common/errors/interceptors/notfound.interceptor';
