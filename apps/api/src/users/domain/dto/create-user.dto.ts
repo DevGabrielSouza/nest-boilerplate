@@ -7,6 +7,7 @@ import {
   IsEnum,
   IsBoolean,
   IsDateString,
+  Matches,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
@@ -23,7 +24,10 @@ export class CreateUserDto {
   lastName: string;
 
   @ApiProperty({ example: 'user@example.com' })
-  @IsEmail()
+  @IsEmail({}, { message: 'Email inválido' })
+  @Matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, {
+    message: 'Email deve ter um formato válido',
+  })
   @IsNotEmpty()
   email: string;
 

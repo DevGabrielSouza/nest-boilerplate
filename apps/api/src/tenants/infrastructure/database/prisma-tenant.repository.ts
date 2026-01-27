@@ -4,10 +4,13 @@ import { CreateTenantDto } from '../../domain/dto/create-tenant.dto';
 import { UpdateTenantDto } from '../../domain/dto/update-tenant.dto';
 import { UserRole } from '@prisma/client';
 import { CreateTenantWithUserDto } from 'apps/api/src/tenants/domain/dto/create-tenant-with-user.dto';
+import { TenantRepository } from '../../domain/repositories/tenant.repository';
 
 @Injectable()
-export class PrismaTenantRepository {
-  constructor(private readonly prisma: PrismaService) {}
+export class PrismaTenantRepository extends TenantRepository {
+  constructor(private readonly prisma: PrismaService) {
+    super();
+  }
 
   async create(data: CreateTenantDto, slug: string) {
     return this.prisma.tenant.create({ data: { ...data, slug } });
@@ -48,6 +51,10 @@ export class PrismaTenantRepository {
 
   findById(id: string) {
     return this.prisma.tenant.findUnique({ where: { id } });
+  }
+
+  findBySlug(slug: string) {
+    return this.prisma.tenant.findUnique({ where: { slug } });
   }
 
   update(id: string, data: UpdateTenantDto) {

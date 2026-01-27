@@ -2,6 +2,12 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 import { Role } from '../enums/role.enum';
+import { TokenPayload } from 'apps/api/src/auth/application/service/token.service';
+
+interface RequestWithAuth extends Request {
+  tokenPayload?: TokenPayload;
+  user?: unknown;
+}
 
 @Injectable()
 export class RoleGuard implements CanActivate {
@@ -17,13 +23,13 @@ export class RoleGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
-    const user = request.user;
+    const request = context.switchToHttp().getRequest<RequestWithAuth>();
+    const tokenPayload = request.tokenPayload;
 
-    if (!user) {
+    if (!tokenPayload) {
       return false;
     }
 
-    return requiredRoles.some((role) => user.role === role);
+    return requiredRoles.some((role) => tokenPayload.role === role);
   }
 }

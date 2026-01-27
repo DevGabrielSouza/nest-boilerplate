@@ -8,14 +8,14 @@ import { Observable } from 'rxjs';
 import { UnauthorizedError } from 'apps/api/src/common/errors/types/UnauthorizedError';
 import { RequestContextService } from 'apps/api/src/request-provider/application/service/request-context.service';
 import { UsersService } from 'apps/api/src/users/application/service/users.service';
-import { AuthService } from 'apps/api/src/auth/application/service/auth.service';
+import { TokenService } from 'apps/api/src/auth/application/service/token.service';
 import { tenantContext } from 'apps/api/src/prisma/middlewares/tenant-filter.middleware';
 
 @Injectable()
 export class TenantInterceptor implements NestInterceptor {
   constructor(
     private readonly requestContextProvider: RequestContextService,
-    private readonly authService: AuthService,
+    private readonly tokenService: TokenService,
     private readonly usersService: UsersService
   ) {}
 
@@ -31,13 +31,13 @@ export class TenantInterceptor implements NestInterceptor {
       throw new UnauthorizedError('Token is missing');
     }
 
-    const tokenData = this.authService.checkToken(token);
+    const tokenData = this.tokenService.verifyToken(token);
 
     if (!tokenData || !tokenData.tenantId) {
       throw new UnauthorizedError('Invalid or expired token');
     }
 
-    const user = await this.usersService.findOne(tokenData.sub as string);
+    const user = await this.usersService.findOne(tokenData.sub);
 
     if (!user) {
       throw new UnauthorizedError('User not found');

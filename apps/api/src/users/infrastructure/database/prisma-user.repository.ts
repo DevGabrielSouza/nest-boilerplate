@@ -129,17 +129,29 @@ export class PrismaUserRepository extends UserRepository {
     return users;
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
+  update(
+    id: string,
+    updateUserDto: Partial<UpdateUserDto> & { password?: string }
+  ) {
     const updatedUser = this.prisma.user.update({
       where: { id },
       data: {
-        name: updateUserDto.name,
-        lastName: updateUserDto.lastName,
-        email: updateUserDto.email,
-        taxId: updateUserDto.taxId,
-        image: updateUserDto.image,
-        emailVerifiedAt: updateUserDto.emailVerifiedAt,
-        isTwoFactorEnabled: updateUserDto.isTwoFactorEnabled,
+        ...(updateUserDto.name && { name: updateUserDto.name }),
+        ...(updateUserDto.lastName && { lastName: updateUserDto.lastName }),
+        ...(updateUserDto.email && { email: updateUserDto.email }),
+        ...(updateUserDto.taxId !== undefined && {
+          taxId: updateUserDto.taxId,
+        }),
+        ...(updateUserDto.image !== undefined && {
+          image: updateUserDto.image,
+        }),
+        ...(updateUserDto.emailVerifiedAt !== undefined && {
+          emailVerifiedAt: updateUserDto.emailVerifiedAt,
+        }),
+        ...(updateUserDto.isTwoFactorEnabled !== undefined && {
+          isTwoFactorEnabled: updateUserDto.isTwoFactorEnabled,
+        }),
+        ...(updateUserDto.password && { password: updateUserDto.password }),
       },
     });
     return updatedUser;

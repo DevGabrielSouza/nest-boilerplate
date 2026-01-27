@@ -2,6 +2,7 @@ import {
   Controller,
   Patch,
   Param,
+  Body,
   UseGuards,
   HttpCode,
   HttpStatus,
@@ -14,6 +15,10 @@ import { UserTenantEntity } from '../../domain/entities/user-tenant.entity';
 import { NotFoundError } from 'apps/api/src/common/errors/types/NotFoundError';
 import { DomainEventDispatcher } from 'apps/api/src/shared/domain/events/domain-event-dispatcher';
 import { UserTenant, Tenant } from '@prisma/client';
+import { UpdatePasswordDto } from '../../domain/dto/update-password.dto';
+import { Password } from 'apps/api/src/shared/domain/value-objects/password';
+import { UnauthorizedError } from 'apps/api/src/common/errors/types/UnauthorizedError';
+import { AuditService } from 'apps/api/src/common/services/audit.service';
 
 @ApiTags('User Actions')
 @UseGuards(AuthGuard)
@@ -21,7 +26,8 @@ import { UserTenant, Tenant } from '@prisma/client';
 export class UserActionsController {
   constructor(
     private readonly repository: UserRepository,
-    private readonly eventDispatcher: DomainEventDispatcher
+    private readonly eventDispatcher: DomainEventDispatcher,
+    private readonly auditService: AuditService
   ) {}
 
   @Patch(':id/verify-email')
@@ -132,6 +138,46 @@ export class UserActionsController {
         email: user.email,
         isTwoFactorEnabled: user.isTwoFactorEnabled,
       },
+    };
+  }
+
+  @Patch(':id/update-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Atualiza a senha do usuário' })
+  @ApiResponse({ status: 200, description: 'Senha atualizada com sucesso' })
+  async updatePassword(
+    @Param('id') id: string,
+    @Body() updatePasswordDto: UpdatePasswordDto
+  ) {
+    const userData = await this.repository.findOne(id);
+    if (!userData) {
+      throw new NotFoundError('Usuário não encontrado');
+    }
+
+    const currentPassword = new Password({
+      value: updatePasswordDto.currentPassword,
+    });
+    const isValidPassword = await currentPassword.matches(userData.password);
+
+    if (!isValidPassword) {
+      throw new UnauthorizedError('Senha atual incorreta');
+    }
+
+    const newPassword = new Password({
+      value: updatePasswordDto.newPassword,
+      confirmValue: updatePasswordDto.confirmPassword,
+    });
+
+    const hashedPassword = await newPassword.toHashed();
+
+    await this.repository.update(id, {
+      password: hashedPassword,
+    });
+
+    await this.auditService.logPasswordChange(id);
+
+    return {
+      message: 'Senha atualizada com sucesso',
     };
   }
 }

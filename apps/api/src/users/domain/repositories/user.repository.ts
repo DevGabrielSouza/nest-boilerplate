@@ -85,7 +85,10 @@ export abstract class UserRepository {
    * @param updateUserDto - Dados a serem atualizados
    * @returns Usuário atualizado
    */
-  abstract update(id: string, updateUserDto: UpdateUserDto): Promise<User>;
+  abstract update(
+    id: string,
+    updateUserDto: Partial<UpdateUserDto> & { password?: string }
+  ): Promise<User>;
 
   /**
    * Remove um usuário

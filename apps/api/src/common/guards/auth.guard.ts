@@ -1,12 +1,12 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { UserEntity } from '../../users/domain/entities/user.entity';
-import { AuthService } from '../../auth/application/service/auth.service';
+import { TokenService } from '../../auth/application/service/token.service';
 import { UsersService } from '../../users/application/service/users.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
-    private readonly authService: AuthService,
+    private readonly tokenService: TokenService,
     private readonly usersService: UsersService
   ) {}
 
@@ -20,10 +20,10 @@ export class AuthGuard implements CanActivate {
     if (!token) return false;
 
     try {
-      const tokenPayload = this.authService.checkToken(jwt);
+      const tokenPayload = this.tokenService.verifyToken(jwt);
 
       const user: UserEntity | null = await this.usersService.findOne(
-        tokenPayload.sub as string
+        tokenPayload.sub
       );
 
       if (!user || !tokenPayload.tenantId) return false;

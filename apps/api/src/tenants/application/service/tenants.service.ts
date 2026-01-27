@@ -3,14 +3,13 @@ import { Slug } from 'apps/api/src/shared/domain/value-objects/slug';
 import { CreateTenantWithUserDto } from 'apps/api/src/tenants/domain/dto/create-tenant-with-user.dto';
 import { CreateTenantDto } from 'apps/api/src/tenants/domain/dto/create-tenant.dto';
 import { UpdateTenantDto } from 'apps/api/src/tenants/domain/dto/update-tenant.dto';
-
-import { PrismaTenantRepository } from 'apps/api/src/tenants/infrastructure/database/prisma-tenant.repository';
+import { TenantRepository } from 'apps/api/src/tenants/domain/repositories/tenant.repository';
 import { UsersService } from 'apps/api/src/users/application/service/users.service';
 
 @Injectable()
 export class TenantService {
   constructor(
-    private readonly tenantRepository: PrismaTenantRepository,
+    private readonly tenantRepository: TenantRepository,
     private readonly userService: UsersService
   ) {}
 
